@@ -209,6 +209,18 @@ class TestGitlabHttpMethods(unittest.TestCase):
             self.assertIsInstance(result, list)
             self.assertEqual(len(result), 1)
 
+    def test_head_request(self):
+        @urlmatch(scheme="http", netloc="localhost", path="/api/v4/projects",
+                  method="head")
+        def resp_cont(url, request):
+            headers = {'content-type': 'application/json', 'X-Total': 1}
+            content = ''
+            return response(200, content, headers, None, 5, request)
+
+        with HTTMock(resp_cont):
+            result = self.gl.http_head('/projects')
+            self.assertIsInstance(result, dict)
+
     def test_list_request_404(self):
         @urlmatch(scheme="http", netloc="localhost",
                   path="/api/v4/not_there", method="get")
