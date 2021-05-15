@@ -203,12 +203,12 @@ class TestMixinMethods(unittest.TestCase):
 
         @urlmatch(scheme="http", netloc="localhost", path='/api/v4/tests',
                   method="get")
-        def resp_cont(url, request):
+        def resp_list_cont(url, request):
             headers = {'Content-Type': 'application/json'}
             content = '[{"id": 42, "foo": "bar"},{"id": 43, "foo": "baz"}]'
             return response(200, content, headers, None, 5, request)
 
-        with HTTMock(resp_cont):
+        with HTTMock(resp_list_cont):
             # test RESTObjectList
             mgr = M(self.gl)
             obj_list = mgr.list(as_list=False)
@@ -224,6 +224,19 @@ class TestMixinMethods(unittest.TestCase):
             self.assertEqual(obj_list[1].id, 43)
             self.assertIsInstance(obj_list[0], FakeObject)
             self.assertEqual(len(obj_list), 2)
+
+        @urlmatch(scheme="http", netloc="localhost", path='/api/v4/tests',
+                  method="head")
+        def resp_count_cont(url, request):
+            headers = {'Content-Type': 'application/json', 'X-Total': 2}
+            content = ''
+            return response(200, content, headers, None, 5, request)
+
+        with HTTMock(resp_count_cont):
+            mgr = M(self.gl)
+            # test count()
+            res = mgr.count()
+            self.assertEqual(res, 2)
 
     def test_list_other_url(self):
         class M(ListMixin, FakeManager):
