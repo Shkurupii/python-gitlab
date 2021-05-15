@@ -327,6 +327,8 @@ sudo_project = gl.projects.create({'name': 'sudo_project'}, sudo=user1.name)
 
 assert(len(gl.projects.list(owned=True)) == 2)
 assert(len(gl.projects.list(search="admin")) == 1)
+assert(gl.projects.count() == 4)
+assert(gl.projects.count(sudo=user1.name) == 1)
 
 # test pagination
 l1 = gl.projects.list(per_page=1, page=1)
